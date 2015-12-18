@@ -1,0 +1,7 @@
+# ignore all objects
+*.o
+config.*
+*.swp
+*~
+dsc.conf.sample
+TmfBase/

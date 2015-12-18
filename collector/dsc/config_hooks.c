@@ -15,6 +15,7 @@ void Ncap_init(const char *device, int promisc);
 #endif
 void Pcap_init(const char *device, int promisc);
 uint64_t minfree_bytes = 0;
+uint64_t export_json = 0;
 
 int
 open_interface(const char *interface)
@@ -115,5 +116,13 @@ set_minfree_bytes(const char *s)
 {
     syslog(LOG_INFO, "minfree_bytes %s", s);
     minfree_bytes = strtoull(s, NULL, 10);
+    return 1;
+}
+
+int
+set_export_json(const char *s)
+{
+    syslog(LOG_INFO, "exporting to json format: %s", s);
+    export_json = strtoull(s, NULL, 10);
     return 1;
 }

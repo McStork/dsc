@@ -52,6 +52,7 @@ extern void country_indexer_init(void);
 #endif
 extern void ParseConfig(const char *);
 extern uint64_t minfree_bytes;
+extern uint64_t export_json;
 extern int n_pcap_offline;
 
 void
@@ -140,15 +141,21 @@ dump_reports(void)
     FILE *fp;
     char fname[128];
     char tname[128];
+    char extension[4];
 
     if (disk_is_full()) {
-	syslog(LOG_NOTICE, "%s", "Not enough free disk space to write XML files");
+	syslog(LOG_NOTICE, "%s", "Not enough free disk space to write report files");
 	return 1;
     }
+    if (export_json)
+    strcpy(extension,"json");
+    else
+    strcpy(extension, "xml");
+
 #if HAVE_LIBNCAP
-    snprintf(fname, 128, "%d.dscdata.xml", Ncap_finish_time());
+    snprintf(fname, 128, "%d.dscdata.%s", Ncap_finish_time(), extension);
 #else
-    snprintf(fname, 128, "%d.dscdata.xml", Pcap_finish_time());
+    snprintf(fname, 128, "%d.dscdata.%s", Pcap_finish_time(), extension);
 #endif
     snprintf(tname, 128, "%s.XXXXXXXXX", fname);
     fd = mkstemp(tname);
@@ -164,10 +171,19 @@ dump_reports(void)
     }
     if (debug_flag)
 	fprintf(stderr, "writing to %s\n", tname);
+
+    if (export_json)
+    fprintf(fp, "{\n");
+    else
     fprintf(fp, "<dscdata>\n");
+
     /* amalloc_report(); */
-    pcap_report(fp);
-    dns_message_report(fp);
+    pcap_report(fp, export_json);
+    dns_message_report(fp, export_json);
+
+    if (export_json)
+    fprintf(fp, "\n}\n");
+    else
     fprintf(fp, "</dscdata>\n");
 
     /*

@@ -54,6 +54,7 @@
 #include "syslog_debug.h"
 
 extern md_array_printer xml_printer;
+extern md_array_printer json_printer;
 extern int debug_flag;
 static md_array_list *Arrays = NULL;
 static filter_list *DNSFilters = NULL;
@@ -348,11 +349,15 @@ dns_message_add_array(const char *name, const char *fn, const char *fi,
 }
 
 void
-dns_message_report(FILE * fp)
+dns_message_report(FILE *fp, uint64_t export_json)
 {
     md_array_list *a;
-    for (a = Arrays; a; a = a->next)
-	md_array_print(a->theArray, &xml_printer, fp);
+    for (a = Arrays; a; a = a->next) {
+        if (export_json)
+        md_array_print(a->theArray, &json_printer, fp);
+        else
+        md_array_print(a->theArray, &xml_printer, fp);
+    }
 }
 
 void
