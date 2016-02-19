@@ -75,9 +75,11 @@ d1_begin(void *pr_data, char *l)
         l = e;
     }
 
-    if (comma[1]){
+    comma[2] = 0;
+    if (comma[1]) {
         fprintf(fp, ",\n");
     } else {
+        fprintf(fp, "\n");
         comma[1]=1;
     }
 
@@ -127,21 +129,25 @@ d1_end(void *pr_data, char *l)
     }
 
     fprintf(fp, "\n      }");
-    comma[2] = 0;
 }
 
 static void
 start_data(void *pr_data)
 {
     FILE *fp = pr_data;
-    fprintf(fp, "    \"data\": [\n");
+    fprintf(fp, "    \"data\": [");
 }
 
 static void
 finish_data(void *pr_data)
 {
     FILE *fp = pr_data;
-    fprintf(fp, "\n    ]\n");
+    
+    if (comma[1]) {
+        fprintf(fp, "\n    ]\n");
+    } else {
+        fprintf(fp, " ]\n");
+    }
 }
 
 md_array_printer json_printer =
