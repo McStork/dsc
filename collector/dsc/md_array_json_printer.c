@@ -25,15 +25,15 @@ start_array(void *pr_data, const char *name)
 
     if (comma[0]){
         fprintf(fp, ",\n");
-    } else{
+    } else {
         comma[0]=1;
     }
-    fprintf(fp, "    ");
+    fprintf(fp, "  ");
 
     fprintf(fp, "\"%s\": {\n", name);
-    fprintf(fp, "      \"start_time\": \"%d\",\n", Pcap_start_time());
-    fprintf(fp, "      \"stop_time\": \"%d\",\n", Pcap_finish_time());
-    fprintf(fp, "      \"dimensions\": [");
+    fprintf(fp, "    \"start_time\": { \"$date\": %d000 },\n", Pcap_start_time());
+    fprintf(fp, "    \"stop_time\": { \"$date\": %d000 },\n", Pcap_finish_time());
+    fprintf(fp, "    \"dimensions\": [");
 }
 
 static void
@@ -41,7 +41,7 @@ finish_array(void *pr_data)
 {
     FILE *fp = pr_data;
     comma[1] = 0;
-    fprintf(fp, "    }");
+    fprintf(fp, "  }");
 }
 
 static void
@@ -56,7 +56,7 @@ static void
 d2_type(void *pr_data, const char *t)
 {
     FILE *fp = pr_data;
-    fprintf(fp, " ,\"%s\" ],\n", t);
+    fprintf(fp, ", \"%s\" ],\n", t);
     d2_type_s = t;
 }
 
@@ -70,23 +70,25 @@ d1_begin(void *pr_data, char *l)
     int ll = strlen(l);
     char *e = NULL;
     if (strspn(l, entity_chars) != ll) {
-	int x = base64_encode(l, ll, &e);
-	assert(x);
-	l = e;
+        int x = base64_encode(l, ll, &e);
+        assert(x);
+        l = e;
     }
 
     if (comma[1]){
         fprintf(fp, ",\n");
-    } else{
+    } else {
         comma[1]=1;
     }
-    fprintf(fp, "        ");
 
-    fprintf(fp, "{ \"%s\": \"%s\",\n", d1_type_s, l);
-    fprintf(fp, "          \"%s\": [\n", d2_type_s);
+    fprintf(fp, "      {\n");
+    fprintf(fp, "        ");
+    fprintf(fp, "\"%s\": \"%s\",\n", d1_type_s, l);
+    fprintf(fp, "        ");
+    fprintf(fp, "\"%s\": [", d2_type_s);
 
     if (e)
-	xfree(e);
+        xfree(e);
 }
 
 static void
@@ -96,21 +98,21 @@ print_element(void *pr_data, char *l, int val)
     int ll = strlen(l);
     char *e = NULL;
     if (strspn(l, entity_chars) != ll) {
-	int x = base64_encode(l, ll, &e);
-	assert(x);
-	l = e;
+        int x = base64_encode(l, ll, &e);
+        assert(x);
+        l = e;
     }
 
     if (comma[2]){
-        fprintf(fp, ",\n");
-    } else{
+        fprintf(fp, ",");
+    } else {
         comma[2]=1;
     }
-    fprintf(fp, "            ");
-    fprintf(fp, "{ \"val\": \"%s\", \"count\": \"%d\" }", l, val);
+    fprintf(fp, "\n          ");
+    fprintf(fp, "{ \"val\": \"%s\", \"count\": %d }", l, val);
 
     if (e)
-	xfree(e);
+        xfree(e);
 }
 
 static void
@@ -118,8 +120,13 @@ d1_end(void *pr_data, char *l)
 {
     FILE *fp = pr_data;
 
-    fprintf(fp, "\n          ]");
-    fprintf(fp, "\n        }");
+    if (comma[2]){
+        fprintf(fp, "\n        ]");
+    } else {
+        fprintf(fp, " ]");
+    }
+
+    fprintf(fp, "\n      }");
     comma[2] = 0;
 }
 
@@ -127,14 +134,14 @@ static void
 start_data(void *pr_data)
 {
     FILE *fp = pr_data;
-    fprintf(fp, "      \"data\": [\n");
+    fprintf(fp, "    \"data\": [\n");
 }
 
 static void
 finish_data(void *pr_data)
 {
     FILE *fp = pr_data;
-    fprintf(fp, "\n       ]\n");
+    fprintf(fp, "\n    ]\n");
 }
 
 md_array_printer json_printer =
