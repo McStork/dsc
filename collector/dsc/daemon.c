@@ -52,7 +52,8 @@ extern void country_indexer_init(void);
 #endif
 extern void ParseConfig(const char *);
 extern uint64_t minfree_bytes;
-extern uint64_t export_json;
+extern char output_json;
+extern char output_ext_json;
 extern int n_pcap_offline;
 extern md_array_printer xml_printer;
 extern md_array_printer json_printer;
@@ -194,19 +195,16 @@ dump_report(char *extension, char *start_file, char *end_file, md_array_printer 
 static int
 dump_reports(void)
 {
-  //char extension[] = "xml";
-  //char start_file[] = "<dscdata>\n";
-  //char end_file[] = "</dscdata>\n";
   int err = dump_report("xml", "<dscdata>\n", "</dscdata>\n", &xml_printer);
   
-  if (export_json) {
-    //char extension[] = "json";
-    //char start_file[] = "{\n";
-    //char end_file[] = "\n}\n";
+  if (output_json) {
+    err = err & dump_report("json", "{\n" , "\n}\n", &json_printer);
+  
+  }
+  if (output_ext_json) {
     err = err & dump_report("json", "{\n" , "\n}\n", &json_printer);
   }
 
-  // if (export_ext_json)
   return err;
 }
 

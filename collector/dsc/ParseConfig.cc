@@ -17,7 +17,6 @@ extern "C" int add_local_address(const char *);
 extern "C" int open_interface(const char *);
 extern "C" int set_run_dir(const char *);
 extern "C" int set_minfree_bytes(const char *);
-extern "C" int set_export_json(const char *);
 extern "C" int set_pid_file(const char *);
 extern "C" int add_dataset(const char *name, const char *layer,
 	const char *firstname, const char *firstindexer,
@@ -27,6 +26,7 @@ extern "C" int set_bpf_vlan_tag_byte_order(const char *);
 extern "C" int set_bpf_program(const char *);
 extern "C" int set_match_vlan(const char *);
 extern "C" int add_qname_filter(const char *name, const char *re);
+extern "C" int set_additional_output(const char *);
 
 extern "C" void ParseConfig(const char *);
 
@@ -45,17 +45,18 @@ Rule rHexPart;
 Rule rIPv6Address;
 Rule rIPAddress;
 Rule rHostOrNet;
+Rule rOutputs;
 
 Rule rInterface("Interface", 0);
 Rule rRunDir("RunDir", 0);
 Rule rMinfreeBytes("MinfreeBytes", 0);
-Rule rExportJson("ExportJson", 0);
 Rule rPidFile("PidFile", 0);
 Rule rLocalAddr("LocalAddr", 0);
 Rule rPacketFilterProg("PacketFilterProg", 0);
 Rule rDatasetOpt("DatasetOpt", 0);
 Rule rDataset("Dataset", 0);
 Rule rBVTBO("BVTBO", 0);
+Rule rAddOutput("AddOutput", 0);
 Rule rMatchVlan("MatchVlan", 0);
 Rule rQnameFilter("QnameFilter", 0);
 
@@ -111,13 +112,6 @@ interpret(const Pree &tree, int level)
 			return 0;
 		}
 	} else
-        if (tree.rid() == rExportJson.id()) {
-		assert(tree.count() > 1);
-                if (set_export_json(tree[1].image().c_str()) != 1) {
-			cerr << "interpret() failure in export_json" << endl;
-			return 0;
-		}
-	} else
         if (tree.rid() == rPidFile.id()) {
 		assert(tree.count() > 1);
                 if (set_pid_file(remove_quotes(tree[1].image()).c_str()) != 1) {
@@ -158,6 +152,13 @@ interpret(const Pree &tree, int level)
 		assert(tree.count() > 1);
 		if (set_bpf_vlan_tag_byte_order(tree[1].image().c_str()) != 1) {
 			cerr << "interpret() failure in bpf_vlan_tag_byte_order" << endl;
+			return 0;
+		}
+	} else
+	if (tree.rid() == rAddOutput.id()) {
+		assert(tree.count() > 1);
+		if (set_additional_output(tree[1].image().c_str()) != 1) {
+			cerr << "interpret() failure in set_additional_output" << endl;
 			return 0;
 		}
 	} else
@@ -215,12 +216,13 @@ ParseConfig(const char *fn)
 	rIPv6Address = rHexPart >> * ( ":" >> rIPv4Address );
 	rIPAddress = rIPv4Address | rIPv6Address;
 	rHostOrNet = string_r("host") | string_r("net");
+    rOutputs = string_r("json") | string_r("ext_json");
 
 	// rule/line level
 	rInterface = "interface" >>rBareToken >>";" ;
 	rRunDir = "run_dir" >>rQuotedToken >>";" ;
 	rMinfreeBytes = "minfree_bytes" >>rDecimalNumber >>";" ;
-    rExportJson = "export_json" >>rDecimalNumber >>";";
+    rAddOutput = "add_output" >>rDecimalNumber >>";";
 	rPidFile = "pid_file" >>rQuotedToken >>";" ;
 	rLocalAddr = "local_address" >>rIPAddress >>";" ;
 	rPacketFilterProg = "bpf_program" >>rQuotedToken >>";" ;
@@ -231,6 +233,7 @@ ParseConfig(const char *fn)
 		>>rBareToken
 		>>*rDatasetOpt >>";" ;
 	rBVTBO = "bpf_vlan_tag_byte_order" >>rHostOrNet >>";" ;
+    rAddOutput = "add_output" >>rOutputs >>";" ;
 	rMatchVlan = "match_vlan" >> +rDecimalNumber >>";" ;
 	rQnameFilter = "qname_filter" >>rBareToken >>rBareToken >>";" ;
 
@@ -239,12 +242,12 @@ ParseConfig(const char *fn)
 		rInterface |
 		rRunDir |
 		rMinfreeBytes |
-        rExportJson |
 		rPidFile |
 		rLocalAddr |
 		rPacketFilterProg |
 		rDataset |
 		rBVTBO |
+        rAddOutput |
 		rMatchVlan |
 		rQnameFilter
 	) >> end_r;
@@ -267,11 +270,11 @@ ParseConfig(const char *fn)
     rInterface.committed(true);
     rRunDir.committed(true);
     rMinfreeBytes.committed(true);
-    rExportJson.committed(true);
     rLocalAddr.committed(true);
     rPacketFilterProg.committed(true);
     rDataset.committed(true);
 	rBVTBO.committed(true);
+	rAddOutput.committed(true);
 	rMatchVlan.committed(true);
 
 	std::string config;
