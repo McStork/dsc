@@ -54,6 +54,9 @@ extern void ParseConfig(const char *);
 extern uint64_t minfree_bytes;
 extern uint64_t export_json;
 extern int n_pcap_offline;
+extern md_array_printer xml_printer;
+extern md_array_printer json_printer;
+//extern md_array_printer json_ext_printer;
 
 void
 daemonize(void)
@@ -135,22 +138,17 @@ usage(void)
 }
 
 static int
-dump_reports(void)
+dump_report(char *extension, char *start_file, char *end_file, md_array_printer *printer)
 {
     int fd;
     FILE *fp;
     char fname[128];
     char tname[128];
-    char extension[4];
 
     if (disk_is_full()) {
-	syslog(LOG_NOTICE, "%s", "Not enough free disk space to write report files");
-	return 1;
+      syslog(LOG_NOTICE, "%s", "Not enough free disk space to write report files");
+      return 1;
     }
-    if (export_json)
-    strcpy(extension,"json");
-    else
-    strcpy(extension, "xml");
 
 #if HAVE_LIBNCAP
     snprintf(fname, 128, "%d.dscdata.%s", Ncap_finish_time(), extension);
@@ -160,31 +158,25 @@ dump_reports(void)
     snprintf(tname, 128, "%s.XXXXXXXXX", fname);
     fd = mkstemp(tname);
     if (fd < 0) {
-	syslog(LOG_ERR, "%s: %s", tname, strerror(errno));
-	return 1;
+      syslog(LOG_ERR, "%s: %s", tname, strerror(errno));
+      return 1;
     }
     fp = fdopen(fd, "w");
     if (NULL == fp) {
-	syslog(LOG_ERR, "%s: %s", tname, strerror(errno));
-	close(fd);
-	return 1;
+      syslog(LOG_ERR, "%s: %s", tname, strerror(errno));
+      close(fd);
+      return 1;
     }
     if (debug_flag)
-	fprintf(stderr, "writing to %s\n", tname);
+      fprintf(stderr, "writing to %s\n", tname);
 
-    if (export_json)
-    fprintf(fp, "{\n");
-    else
-    fprintf(fp, "<dscdata>\n");
+    fprintf(fp, start_file);
 
     /* amalloc_report(); */
-    pcap_report(fp, export_json);
-    dns_message_report(fp, export_json);
+    pcap_report(fp, printer);
+    dns_message_report(fp, printer);
 
-    if (export_json)
-    fprintf(fp, "\n}\n");
-    else
-    fprintf(fp, "</dscdata>\n");
+    fprintf(fp, end_file);
 
     /*
      * XXX need chmod because files are written as root, but may be processed
@@ -193,9 +185,29 @@ dump_reports(void)
     fchmod(fd, 0664);
     fclose(fp);
     if (debug_flag)
-	fprintf(stderr, "renaming to %s\n", fname);
+      fprintf(stderr, "renaming to %s\n", fname);
+    
     rename(tname, fname);
     return 0;
+}
+
+static int
+dump_reports(void)
+{
+  //char extension[] = "xml";
+  //char start_file[] = "<dscdata>\n";
+  //char end_file[] = "</dscdata>\n";
+  int err = dump_report("xml", "<dscdata>\n", "</dscdata>\n", &xml_printer);
+  
+  if (export_json) {
+    //char extension[] = "json";
+    //char start_file[] = "{\n";
+    //char end_file[] = "\n}\n";
+    err = err & dump_report("json", "{\n" , "\n}\n", &json_printer);
+  }
+
+  // if (export_ext_json)
+  return err;
 }
 
 int

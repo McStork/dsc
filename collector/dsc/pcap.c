@@ -38,8 +38,8 @@
 #include <stdarg.h>
 
 #include "xmalloc.h"
-#include "dns_message.h"
 #include "pcap.h"
+#include "dns_message.h"
 #include "byteorder.h"
 #include "syslog_debug.h"
 #include "hashtbl.h"
@@ -909,12 +909,8 @@ pcap_set_match_vlan(int vlan)
 
 /* ========== PCAP_STAT INDEXER ========== */
 
-#include "md_array.h"
-
 int pcap_ifname_iterator(char **);
 int pcap_stat_iterator(char **);
-extern md_array_printer xml_printer;
-extern md_array_printer json_printer;
 
 static indexer_t indexers[] = {
     {"ifname", NULL, pcap_ifname_iterator, NULL},
@@ -957,7 +953,7 @@ pcap_stat_iterator(char **label)
 }
 
 void
-pcap_report(FILE *fp, uint64_t export_json)
+pcap_report(FILE *fp, md_array_printer *printer)
 {
     int i;
     md_array *theArray = acalloc(1, sizeof(*theArray));
@@ -970,15 +966,12 @@ pcap_report(FILE *fp, uint64_t export_json)
     theArray->d2.alloc_sz = 3;
     theArray->array = acalloc(n_interfaces, sizeof(*theArray->array));
     for (i = 0; i < n_interfaces; i++) {
-	struct _interface *I = &interfaces[i];
-	theArray->array[i].alloc_sz = 3;
-	theArray->array[i].array = acalloc(3, sizeof(int));
-	theArray->array[i].array[0] = I->pkts_captured;
-	theArray->array[i].array[1] = I->ps1.ps_recv - I->ps0.ps_recv;
-	theArray->array[i].array[2] = I->ps1.ps_drop - I->ps0.ps_drop;
+      struct _interface *I = &interfaces[i];
+      theArray->array[i].alloc_sz = 3;
+      theArray->array[i].array = acalloc(3, sizeof(int));
+      theArray->array[i].array[0] = I->pkts_captured;
+      theArray->array[i].array[1] = I->ps1.ps_recv - I->ps0.ps_recv;
+      theArray->array[i].array[2] = I->ps1.ps_drop - I->ps0.ps_drop;
     }
-    if (export_json)
-    md_array_print(theArray, &json_printer, fp);
-    else
-    md_array_print(theArray, &xml_printer, fp);
+    md_array_print(theArray, printer, fp);
 }

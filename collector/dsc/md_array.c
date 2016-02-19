@@ -7,7 +7,6 @@
 #include <syslog.h>
 
 #include "xmalloc.h"
-#include "dataset_opt.h"
 #include "md_array.h"
 #include "dns_message.h"
 #include "pcap.h"
