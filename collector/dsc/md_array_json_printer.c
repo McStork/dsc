@@ -9,6 +9,8 @@
 #include "base64.h"
 #include "xmalloc.h"
 
+const int date_size = 255;
+
 static const char *d1_type_s;	/* XXX barf */
 static const char *d2_type_s;	/* XXX barf */
 
@@ -23,6 +25,8 @@ start_array_json(void *pr_data, const char *name)
     FILE *fp = pr_data;
     assert(fp);
 
+    char buff[date_size];
+
     if (comma[0]){
         fprintf(fp, ",\n");
     } else {
@@ -31,8 +35,10 @@ start_array_json(void *pr_data, const char *name)
     fprintf(fp, "  ");
 
     fprintf(fp, "\"%s\": {\n", name);
-    fprintf(fp, "    \"start_time\": \"%s\",\n", Pcap_start_time_iso8601());
-    fprintf(fp, "    \"stop_time\": \"%s\",\n", Pcap_finish_time_iso8601());
+    Pcap_start_time_iso8601(buff, date_size);
+    fprintf(fp, "    \"start_time\": \"%s\",\n", buff);
+    Pcap_finish_time_iso8601(buff, date_size);
+    fprintf(fp, "    \"stop_time\": \"%s\",\n", buff);
     fprintf(fp, "    \"dimensions\": [");
 }
 

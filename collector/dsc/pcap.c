@@ -4,9 +4,6 @@
  * Copyright (c) 2007, The Measurement Factory, Inc.  All rights
  * reserved.  See the LICENSE file for details.
  */
-#define __USE_XOPEN
-#include <time.h>
-
 #include <sys/types.h>
 #include <sys/time.h>
 #include <sys/stat.h>
@@ -19,6 +16,7 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
+#include <time.h>
 #include <unistd.h>
 #include <ctype.h>
 #include <assert.h>
@@ -901,32 +899,24 @@ Pcap_finish_time(void)
     return (int) finish_ts.tv_sec;
 }
 
-char*
-time_t_to_iso8601(time_t secs)
+void
+time_t_to_iso8601(char *buff, int size, time_t secs)
 {
-    struct tm tm;
-    int size_buff = 255;
-    char buff[size_buff];
-
-    memset(&tm, 0, sizeof(struct tm));
-    sprintf(buff, "%ld", start_ts.tv_sec);
-    strptime(buff, "%s", tm);
-    memset(buff, 0, sizeof(size_buff));
-    strftime(buff, size_buff, "%FT%T.000Z", &tm);
-
-    return buff;
+    memset(buff, 0, sizeof(size));
+    struct tm *tm = gmtime(&secs);
+    strftime(buff, size, "%FT%T.000Z", tm);
 }
 
-char*
-Pcap_start_time_iso8601(void)
+void
+Pcap_start_time_iso8601(char *buff, int size)
 {
-    return time_t_to_iso8601(start_ts.tv_sec);
+    return time_t_to_iso8601(buff, size, start_ts.tv_sec);
 }
 
-char*
-Pcap_finish_time_iso8601(void)
+void
+Pcap_finish_time_iso8601(char *buff, int size)
 {
-    return time_t_to_iso8601(finish_ts.tv_sec);
+    return time_t_to_iso8601(buff, size, finish_ts.tv_sec);
 }
 
 void
