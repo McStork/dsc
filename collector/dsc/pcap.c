@@ -902,8 +902,9 @@ Pcap_finish_time(void)
 void
 time_t_to_iso8601(char *buff, int size, time_t secs)
 {
-    memset(buff, 0, sizeof(size));
-    struct tm *tm = gmtime(&secs);
+    time_t clone_t = secs;
+    memset(buff, 0, size);
+    struct tm *tm = gmtime(&clone_t);
     strftime(buff, size, "%FT%T.000Z", tm);
 }
 
