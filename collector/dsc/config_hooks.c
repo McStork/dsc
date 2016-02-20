@@ -132,7 +132,7 @@ int check_unique_json_output(const char *output_format)
 int
 set_additional_output(const char *output_format)
 {
-    syslog(LOG_INFO, "add_output is %s", output_format);
+    syslog(LOG_INFO, "add_output %s", output_format);
 
     if (0 == strcmp(output_format, "json")) {
         if (!check_unique_json_output(output_format))
