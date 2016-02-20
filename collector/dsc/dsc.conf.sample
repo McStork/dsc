@@ -23,10 +23,13 @@ run_dir "/usr/local/dsc/run/NODENAME";
 minfree_bytes 5000000;
 
 
-# export_json
-# replace XML output by JSON. Warning : the presenter will not give you Charts
+# add_output
+#       Set an additional output format. Files with this format 
+#       will be generated along with the XML files.
+#       Currently, the available additional outputs are json and
+#       ext_json. At most one add_output can be set.
 #
-# export_json 1;
+# add_output json;
 
 
 # pid_file
