@@ -222,7 +222,6 @@ ParseConfig(const char *fn)
 	rInterface = "interface" >>rBareToken >>";" ;
 	rRunDir = "run_dir" >>rQuotedToken >>";" ;
 	rMinfreeBytes = "minfree_bytes" >>rDecimalNumber >>";" ;
-    rAddOutput = "add_output" >>rDecimalNumber >>";";
 	rPidFile = "pid_file" >>rQuotedToken >>";" ;
 	rLocalAddr = "local_address" >>rIPAddress >>";" ;
 	rPacketFilterProg = "bpf_program" >>rQuotedToken >>";" ;
@@ -265,6 +264,7 @@ ParseConfig(const char *fn)
 	rDecimalNumber.leaf(true);
 	rIPv4Address.leaf(true);
 	rHostOrNet.leaf(true);
+	rOutputs.leaf(true);
 
 	// commit points
     rInterface.committed(true);

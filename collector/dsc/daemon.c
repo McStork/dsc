@@ -57,7 +57,7 @@ extern char output_ext_json;
 extern int n_pcap_offline;
 extern md_array_printer xml_printer;
 extern md_array_printer json_printer;
-//extern md_array_printer json_ext_printer;
+extern md_array_printer ext_json_printer;
 
 void
 daemonize(void)
@@ -202,7 +202,7 @@ dump_reports(void)
   
   }
   if (output_ext_json) {
-    err = err & dump_report("json", "{\n" , "\n}\n", &json_printer);
+    err = err & dump_report("json", "{\n" , "\n}\n", &ext_json_printer);
   }
 
   return err;

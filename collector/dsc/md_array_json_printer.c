@@ -18,7 +18,26 @@ static const char *d2_type_s;	/* XXX barf */
 static char comma[3] = {0};  /* Comma-separators manager  */
 
 static void
-start_array(void *pr_data, const char *name)
+start_array_json(void *pr_data, const char *name)
+{
+    FILE *fp = pr_data;
+    assert(fp);
+
+    if (comma[0]){
+        fprintf(fp, ",\n");
+    } else {
+        comma[0]=1;
+    }
+    fprintf(fp, "  ");
+
+    fprintf(fp, "\"%s\": {\n", name);
+    fprintf(fp, "    \"start_time\": \"%s\",\n", Pcap_start_time_iso8601());
+    fprintf(fp, "    \"stop_time\": \"%s\",\n", Pcap_finish_time_iso8601());
+    fprintf(fp, "    \"dimensions\": [");
+}
+
+static void
+start_array_ext_json(void *pr_data, const char *name)
 {
     FILE *fp = pr_data;
     assert(fp);
@@ -152,7 +171,20 @@ finish_data(void *pr_data)
 
 md_array_printer json_printer =
 {
-    start_array,
+    start_array_json,
+    finish_array,
+    d1_type,
+    d2_type,
+    start_data,
+    finish_data,
+    d1_begin,
+    d1_end,
+    print_element
+};
+
+md_array_printer ext_json_printer =
+{
+    start_array_ext_json,
     finish_array,
     d1_type,
     d2_type,

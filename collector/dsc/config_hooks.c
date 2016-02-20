@@ -123,7 +123,7 @@ set_minfree_bytes(const char *s)
 int check_unique_json_output(const char *output_format)
 {
     if (output_json || output_ext_json) {
-        syslog(LOG_ERR, "add_output '%s' set but json-like additional output already exists", output_format);
+        syslog(LOG_ERR, "add_output '%s' set but a json-like additional output already exists", output_format);
         return 0;
     }
     return 1;
