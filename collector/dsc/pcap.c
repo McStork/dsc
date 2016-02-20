@@ -16,8 +16,8 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
-#include <time.h>
 #include <unistd.h>
+#include <time.h>
 #include <ctype.h>
 #include <assert.h>
 #include <arpa/inet.h>
@@ -37,8 +37,8 @@
 #include <stdarg.h>
 
 #include "xmalloc.h"
-#include "pcap.h"
 #include "dns_message.h"
+#include "pcap.h"
 #include "byteorder.h"
 #include "syslog_debug.h"
 #include "hashtbl.h"
@@ -986,12 +986,12 @@ pcap_report(FILE *fp, md_array_printer *printer)
     theArray->d2.alloc_sz = 3;
     theArray->array = acalloc(n_interfaces, sizeof(*theArray->array));
     for (i = 0; i < n_interfaces; i++) {
-      struct _interface *I = &interfaces[i];
-      theArray->array[i].alloc_sz = 3;
-      theArray->array[i].array = acalloc(3, sizeof(int));
-      theArray->array[i].array[0] = I->pkts_captured;
-      theArray->array[i].array[1] = I->ps1.ps_recv - I->ps0.ps_recv;
-      theArray->array[i].array[2] = I->ps1.ps_drop - I->ps0.ps_drop;
+        struct _interface *I = &interfaces[i];
+        theArray->array[i].alloc_sz = 3;
+        theArray->array[i].array = acalloc(3, sizeof(int));
+        theArray->array[i].array[0] = I->pkts_captured;
+        theArray->array[i].array[1] = I->ps1.ps_recv - I->ps0.ps_recv;
+        theArray->array[i].array[2] = I->ps1.ps_drop - I->ps0.ps_drop;
     }
     md_array_print(theArray, printer, fp);
 }

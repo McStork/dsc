@@ -216,7 +216,7 @@ ParseConfig(const char *fn)
 	rIPv6Address = rHexPart >> * ( ":" >> rIPv4Address );
 	rIPAddress = rIPv4Address | rIPv6Address;
 	rHostOrNet = string_r("host") | string_r("net");
-    rOutputs = string_r("json") | string_r("ext_json");
+        rOutputs = string_r("json") | string_r("ext_json");
 
 	// rule/line level
 	rInterface = "interface" >>rBareToken >>";" ;
@@ -232,7 +232,7 @@ ParseConfig(const char *fn)
 		>>rBareToken
 		>>*rDatasetOpt >>";" ;
 	rBVTBO = "bpf_vlan_tag_byte_order" >>rHostOrNet >>";" ;
-    rAddOutput = "add_output" >>rOutputs >>";" ;
+        rAddOutput = "add_output" >>rOutputs >>";" ;
 	rMatchVlan = "match_vlan" >> +rDecimalNumber >>";" ;
 	rQnameFilter = "qname_filter" >>rBareToken >>rBareToken >>";" ;
 
@@ -267,12 +267,12 @@ ParseConfig(const char *fn)
 	rOutputs.leaf(true);
 
 	// commit points
-    rInterface.committed(true);
-    rRunDir.committed(true);
-    rMinfreeBytes.committed(true);
-    rLocalAddr.committed(true);
-    rPacketFilterProg.committed(true);
-    rDataset.committed(true);
+        rInterface.committed(true);
+        rRunDir.committed(true);
+        rMinfreeBytes.committed(true);
+        rLocalAddr.committed(true);
+        rPacketFilterProg.committed(true);
+        rDataset.committed(true);
 	rBVTBO.committed(true);
 	rAddOutput.committed(true);
 	rMatchVlan.committed(true);
