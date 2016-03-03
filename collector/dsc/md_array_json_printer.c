@@ -14,9 +14,6 @@ const int date_size = 255;
 static const char *d1_type_s;	/* XXX barf */
 static const char *d2_type_s;	/* XXX barf */
 
-// TODO
-//static const char *b64 = ", { \"base64\": 1}";
-
 static char comma[3] = {0};  /* Comma-separators manager  */
 
 static void
