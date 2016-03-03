@@ -139,7 +139,7 @@ usage(void)
 }
 
 static int
-dump_report(char *extension, char *start_file, char *end_file, md_array_printer *printer)
+dump_report(char *extension, char *start_file, char *end_file, md_array_printer * printer)
 {
     int fd;
     FILE *fp;
@@ -147,10 +147,9 @@ dump_report(char *extension, char *start_file, char *end_file, md_array_printer 
     char tname[128];
 
     if (disk_is_full()) {
-        syslog(LOG_NOTICE, "Not enough free disk space to write '%s' report files", extension);
-        return 1;
+	syslog(LOG_NOTICE, "Not enough free disk space to write '%s' report files", extension);
+	return 1;
     }
-
 #if HAVE_LIBNCAP
     snprintf(fname, 128, "%d.dscdata.%s", Ncap_finish_time(), extension);
 #else
@@ -159,17 +158,17 @@ dump_report(char *extension, char *start_file, char *end_file, md_array_printer 
     snprintf(tname, 128, "%s.XXXXXXXXX", fname);
     fd = mkstemp(tname);
     if (fd < 0) {
-        syslog(LOG_ERR, "%s: %s", tname, strerror(errno));
-        return 1;
+	syslog(LOG_ERR, "%s: %s", tname, strerror(errno));
+	return 1;
     }
     fp = fdopen(fd, "w");
     if (NULL == fp) {
-        syslog(LOG_ERR, "%s: %s", tname, strerror(errno));
-        close(fd);
-        return 1;
+	syslog(LOG_ERR, "%s: %s", tname, strerror(errno));
+	close(fd);
+	return 1;
     }
     if (debug_flag)
-      fprintf(stderr, "writing to %s\n", tname);
+	fprintf(stderr, "writing to %s\n", tname);
 
     fprintf(fp, start_file);
 
@@ -186,8 +185,8 @@ dump_report(char *extension, char *start_file, char *end_file, md_array_printer 
     fchmod(fd, 0664);
     fclose(fp);
     if (debug_flag)
-        fprintf(stderr, "renaming to %s\n", fname);
-    
+	fprintf(stderr, "renaming to %s\n", fname);
+
     rename(tname, fname);
     return 0;
 }
@@ -198,9 +197,9 @@ dump_reports(void)
     int err = dump_report("xml", "<dscdata>\n", "</dscdata>\n", &xml_printer);
 
     if (output_json)
-        err = err & dump_report("json", "{\n" , "\n}\n", &json_printer);
+	err = err & dump_report("json", "{\n", "\n}\n", &json_printer);
     else if (output_ext_json)
-        err = err & dump_report("json", "{\n" , "\n}\n", &ext_json_printer);
+	err = err & dump_report("json", "{\n", "\n}\n", &ext_json_printer);
 
     return err;
 }

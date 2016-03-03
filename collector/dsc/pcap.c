@@ -4,6 +4,7 @@
  * Copyright (c) 2007, The Measurement Factory, Inc.  All rights
  * reserved.  See the LICENSE file for details.
  */
+
 #include <sys/types.h>
 #include <sys/time.h>
 #include <sys/stat.h>
@@ -973,7 +974,7 @@ pcap_stat_iterator(char **label)
 }
 
 void
-pcap_report(FILE *fp, md_array_printer *printer)
+pcap_report(FILE * fp, md_array_printer * printer)
 {
     int i;
     md_array *theArray = acalloc(1, sizeof(*theArray));
@@ -986,12 +987,12 @@ pcap_report(FILE *fp, md_array_printer *printer)
     theArray->d2.alloc_sz = 3;
     theArray->array = acalloc(n_interfaces, sizeof(*theArray->array));
     for (i = 0; i < n_interfaces; i++) {
-        struct _interface *I = &interfaces[i];
-        theArray->array[i].alloc_sz = 3;
-        theArray->array[i].array = acalloc(3, sizeof(int));
-        theArray->array[i].array[0] = I->pkts_captured;
-        theArray->array[i].array[1] = I->ps1.ps_recv - I->ps0.ps_recv;
-        theArray->array[i].array[2] = I->ps1.ps_drop - I->ps0.ps_drop;
+	struct _interface *I = &interfaces[i];
+	theArray->array[i].alloc_sz = 3;
+	theArray->array[i].array = acalloc(3, sizeof(int));
+	theArray->array[i].array[0] = I->pkts_captured;
+	theArray->array[i].array[1] = I->ps1.ps_recv - I->ps0.ps_recv;
+	theArray->array[i].array[2] = I->ps1.ps_drop - I->ps0.ps_drop;
     }
     md_array_print(theArray, printer, fp);
 }
